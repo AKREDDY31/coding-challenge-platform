@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Space</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #1e1e2f;
+      color: white;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    #otp-section {
+      margin-top: 20px;
+    }
+
+    #otp-section input {
+      padding: 12px;
+      width: 220px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    #otp-section button {
+      padding: 12px 24px;
+      border: none;
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    #otp-section button:hover {
+      background: linear-gradient(to right, #ff4b2b, #ff416c);
+    }
+
+    #timer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      color: yellow;
+    }
+
+    #language-section {
+      margin-top: 30px;
+      display: none;
+    }
+
+    .language-button {
+      padding: 15px 30px;
+      font-size: 20px;
+      margin: 10px;
+      border: none;
+      background: #008CBA;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .language-button:hover {
+      background: #005f8b;
+    }
+
+    #error-message {
+      color: red;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    #locked-message {
+      font-size: 24px;
+      color: red;
+      margin-top: 30px;
+      display: none;
+    }
+
+    #warning-message {
+      font-size: 24px;
+      font-weight: bold;
+      color: orange;
+      margin-top: 30px;
+      display: none;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Code Space</h1>
+
+  <div id="otp-section">
+    <input type="text" id="otp-input" placeholder="Enter OTP">
+    <button onclick="verifyOTP()">Submit OTP</button>
+  </div>
+
+  <div id="language-section">
+    <h2>Select Programming Language</h2>
+    <button class="language-button" onclick="handleLanguageSelection('c')">C</button>
+    <button class="language-button" onclick="handleLanguageSelection('python')">Python</button>
+    <button class="language-button" onclick="handleLanguageSelection('java')">Java</button>
+  </div>
+
+  <div id="timer">60:00</div>
+
+  <div id="error-message"></div>
+
+  <div id="locked-message">ALL THE BEST, BOTH OF YOU!</div>
+
+  <div id="warning-message">One wrong move, and you’re done — Code it fair, or miss the fun!</div>
+
+  <script>
+    const otpDatabase = [ "123456", "234567", "345678", "456789", "567890", "678901", "789012", "890123", "901234", "012345",
+      "543210", "654321", "765432", "876543", "987654", "123321", "234432", "345543", "456654", "567765"];
+    let timeRemaining = 60 * 60;
+    let tabSwitchCount = 0;
+    let otpUsed = false;
+    let timerInterval;
+
+    function startTimer() {
+      timerInterval = setInterval(function() {
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          endSession();
+        } else {
+          timeRemaining--;
+          let minutes = Math.floor(timeRemaining / 60);
+          let seconds = timeRemaining % 60;
+          document.getElementById('timer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    function verifyOTP() {
+      const otp = document.getElementById('otp-input').value;
+
+      if (otpDatabase.includes(otp)) {
+        if (otpUsed) {
+          document.getElementById('error-message').textContent = "This OTP has already been used.";
+          return;
+        }
+        otpUsed = true;
+        document.getElementById('otp-section').style.display = 'none';
+        document.getElementById('language-section').style.display = 'block';
+        document.getElementById('error-message').textContent = '';
+        startTimer();
+      } else {
+        document.getElementById('error-message').textContent = "Invalid OTP.";
+      }
+    }
+
+    function handleLanguageSelection(language) {
+      document.getElementById('warning-message').style.display = 'block';
+      setTimeout(function() {
+        redirectToCompiler(language);
+      }, 5000);
+    }
+
+    function redirectToCompiler(language) {
+      let url = '';
+      if (language === 'c') {
+        url = 'https://www.onlinegdb.com/online_c_compiler';
+      } else if (language === 'python') {
+        url = 'https://www.onlinegdb.com/online_python_compiler';
+      } else if (language === 'java') {
+        url = 'https://www.onlinegdb.com/online_java_compiler';
+      }
+      lockTab();
+      window.location.href = url;
+    }
+
+    function lockTab() {
+      document.getElementById('locked-message').style.display = 'block';
+      document.body.style.pointerEvents = 'none';
+    }
+
+    function endSession() {
+      alert('Your session has ended due to inactivity or time expiry.');
+      window.close();
+    }
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        tabSwitchCount++;
+        if (tabSwitchCount > 0) {
+          endSession();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
